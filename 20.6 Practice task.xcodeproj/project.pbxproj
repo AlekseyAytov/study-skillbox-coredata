@@ -11,11 +11,12 @@
 		6B58D7922A0C036A006ADC72 /* Model.swift in Sources */ = {isa = PBXBuildFile; fileRef = 6B58D7912A0C036A006ADC72 /* Model.swift */; };
 		6B58D7942A0C0379006ADC72 /* Service.swift in Sources */ = {isa = PBXBuildFile; fileRef = 6B58D7932A0C0379006ADC72 /* Service.swift */; };
 		6B58D7962A0C0494006ADC72 /* ListViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = 6B58D7952A0C0494006ADC72 /* ListViewController.swift */; };
-		6B58D7982A0C052D006ADC72 /* ModifyViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = 6B58D7972A0C052D006ADC72 /* ModifyViewController.swift */; };
 		6BCF62C52A0E286E003E5710 /* Colors.xcassets in Resources */ = {isa = PBXBuildFile; fileRef = 6BCF62C42A0E286E003E5710 /* Colors.xcassets */; };
 		6BCF62CA2A0E288B003E5710 /* Inter-Medium.ttf in Resources */ = {isa = PBXBuildFile; fileRef = 6BCF62C72A0E288B003E5710 /* Inter-Medium.ttf */; };
 		6BCF62CB2A0E288B003E5710 /* Inter-Regular.ttf in Resources */ = {isa = PBXBuildFile; fileRef = 6BCF62C82A0E288B003E5710 /* Inter-Regular.ttf */; };
 		6BCF62CC2A0E288B003E5710 /* Inter-SemiBold.ttf in Resources */ = {isa = PBXBuildFile; fileRef = 6BCF62C92A0E288B003E5710 /* Inter-SemiBold.ttf */; };
+		6BCF62CF2A0E59A7003E5710 /* CustomUITextField.swift in Sources */ = {isa = PBXBuildFile; fileRef = 6BCF62CE2A0E59A6003E5710 /* CustomUITextField.swift */; };
+		6BCF62D12A0E59F2003E5710 /* ModifyViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = 6BCF62D02A0E59F2003E5710 /* ModifyViewController.swift */; };
 		6BDB8F282A0C01F900CC342C /* AppDelegate.swift in Sources */ = {isa = PBXBuildFile; fileRef = 6BDB8F272A0C01F900CC342C /* AppDelegate.swift */; };
 		6BDB8F2A2A0C01F900CC342C /* SceneDelegate.swift in Sources */ = {isa = PBXBuildFile; fileRef = 6BDB8F292A0C01F900CC342C /* SceneDelegate.swift */; };
 		6BDB8F2F2A0C01F900CC342C /* Main.storyboard in Resources */ = {isa = PBXBuildFile; fileRef = 6BDB8F2D2A0C01F900CC342C /* Main.storyboard */; };
@@ -33,11 +34,12 @@
 		6B58D7912A0C036A006ADC72 /* Model.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Model.swift; sourceTree = "<group>"; };
 		6B58D7932A0C0379006ADC72 /* Service.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Service.swift; sourceTree = "<group>"; };
 		6B58D7952A0C0494006ADC72 /* ListViewController.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ListViewController.swift; sourceTree = "<group>"; };
-		6B58D7972A0C052D006ADC72 /* ModifyViewController.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ModifyViewController.swift; sourceTree = "<group>"; };
 		6BCF62C42A0E286E003E5710 /* Colors.xcassets */ = {isa = PBXFileReference; lastKnownFileType = folder.assetcatalog; path = Colors.xcassets; sourceTree = "<group>"; };
 		6BCF62C72A0E288B003E5710 /* Inter-Medium.ttf */ = {isa = PBXFileReference; lastKnownFileType = file; path = "Inter-Medium.ttf"; sourceTree = "<group>"; };
 		6BCF62C82A0E288B003E5710 /* Inter-Regular.ttf */ = {isa = PBXFileReference; lastKnownFileType = file; path = "Inter-Regular.ttf"; sourceTree = "<group>"; };
 		6BCF62C92A0E288B003E5710 /* Inter-SemiBold.ttf */ = {isa = PBXFileReference; lastKnownFileType = file; path = "Inter-SemiBold.ttf"; sourceTree = "<group>"; };
+		6BCF62CE2A0E59A6003E5710 /* CustomUITextField.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = CustomUITextField.swift; sourceTree = "<group>"; };
+		6BCF62D02A0E59F2003E5710 /* ModifyViewController.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = ModifyViewController.swift; sourceTree = "<group>"; };
 		6BDB8F242A0C01F900CC342C /* 20.6 Practice task.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = "20.6 Practice task.app"; sourceTree = BUILT_PRODUCTS_DIR; };
 		6BDB8F272A0C01F900CC342C /* AppDelegate.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AppDelegate.swift; sourceTree = "<group>"; };
 		6BDB8F292A0C01F900CC342C /* SceneDelegate.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SceneDelegate.swift; sourceTree = "<group>"; };
@@ -133,9 +135,10 @@
 				6B58D7912A0C036A006ADC72 /* Model.swift */,
 				6B58D7932A0C0379006ADC72 /* Service.swift */,
 				6B58D7952A0C0494006ADC72 /* ListViewController.swift */,
-				6B58D7972A0C052D006ADC72 /* ModifyViewController.swift */,
 				6BF645B82A0C2146001ECC19 /* CustomNavigationController.swift */,
 				6BE48A6F2A0D26FE001842CD /* SortingViewController.swift */,
+				6BCF62CE2A0E59A6003E5710 /* CustomUITextField.swift */,
+				6BCF62D02A0E59F2003E5710 /* ModifyViewController.swift */,
 			);
 			path = "20.6 Practice task";
 			sourceTree = "<group>";
@@ -271,10 +274,11 @@
 				6B58D7922A0C036A006ADC72 /* Model.swift in Sources */,
 				6BDB8F282A0C01F900CC342C /* AppDelegate.swift in Sources */,
 				6BE48A702A0D26FE001842CD /* SortingViewController.swift in Sources */,
-				6B58D7982A0C052D006ADC72 /* ModifyViewController.swift in Sources */,
 				6BF645B92A0C2146001ECC19 /* CustomNavigationController.swift in Sources */,
+				6BCF62D12A0E59F2003E5710 /* ModifyViewController.swift in Sources */,
 				6BE48A6E2A0CFCF5001842CD /* ListTableViewCell.swift in Sources */,
 				6BDB8F2A2A0C01F900CC342C /* SceneDelegate.swift in Sources */,
+				6BCF62CF2A0E59A7003E5710 /* CustomUITextField.swift in Sources */,
 				6B58D7902A0C0359006ADC72 /* Constants.swift in Sources */,
 				6B58D7942A0C0379006ADC72 /* Service.swift in Sources */,
 			);

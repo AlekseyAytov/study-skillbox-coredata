@@ -9,10 +9,19 @@ import SnapKit
 
 class ListViewController: UIViewController {
     
+    var artistsStorage: ArtistInfoStorageProtocol = ArtistInfoStorage()
+    
+    var artists: [ArtistProtocol] = [] {
+        didSet {
+            artists.sort { $0.lastName < $1.lastName }
+        }
+    }
+    
     lazy var listTableView: UITableView = {
         let table = UITableView()
         table.backgroundColor = .green
         table.dataSource = self
+        table.delegate = self
         table.separatorStyle = .none
         table.register(ListTableViewCell.self, forCellReuseIdentifier: ListTableViewCell.identifier)
         return table
@@ -24,6 +33,12 @@ class ListViewController: UIViewController {
         setupViews()
         setupConstraints()
         setupNavigationItem()
+        setArtists()
+    }
+    
+    // метод используется для наполнения свойства artists после создания экземпляра класса
+    func setArtists() {
+        artists = artistsStorage.loadArtists()
     }
     
     private func setupNavigationItem() {
@@ -47,12 +62,17 @@ class ListViewController: UIViewController {
         listTableView.snp.makeConstraints { make in
             make.top.equalTo(view.safeAreaLayoutGuide.snp.topMargin)
             make.bottom.equalTo(view.safeAreaLayoutGuide.snp.bottomMargin)
-            make.leading.trailing.equalToSuperview().inset(5)
+            make.leading.trailing.equalToSuperview()
         }
     }
 
     @objc func addTapped() {
-        navigationController?.pushViewController(ModifyViewController(), animated: true)
+        let addScreen = ModifyViewController()
+        addScreen.doAfterEdit = { [unowned self] artist in
+            self.artists.append(artist)
+            self.listTableView.reloadData()
+        }
+        navigationController?.pushViewController(addScreen, animated: true)
     }
     
     @objc func sortTapped() {
@@ -64,17 +84,33 @@ class ListViewController: UIViewController {
 
 extension ListViewController: UITableViewDataSource {
     func tableView(_ tableView: UITableView, numberOfRowsInSection section: Int) -> Int {
-        10
+        artists.count
     }
     
     func tableView(_ tableView: UITableView, cellForRowAt indexPath: IndexPath) -> UITableViewCell {
         let reuseCell = tableView.dequeueReusableCell(withIdentifier: ListTableViewCell.identifier, for: indexPath) as! ListTableViewCell
-        
-        if (indexPath.row % 2) == 0 {
-            reuseCell.backgroundColor = .yellow
-        }
+        reuseCell.name    = artists[indexPath.row].firstName + " " + artists[indexPath.row].lastName
+        reuseCell.dob     = artists[indexPath.row].dob
+        reuseCell.country = artists[indexPath.row].country
         return reuseCell
     }
     
     
+}
+
+extension ListViewController: UITableViewDelegate {
+    func tableView(_ tableView: UITableView, didSelectRowAt indexPath: IndexPath) {
+        
+        let currentArtist = artists[indexPath.row]
+        let editScreen = ModifyViewController()
+        editScreen.artist = currentArtist
+        editScreen.setfields()
+        editScreen.doAfterEdit = { [unowned self] artist in
+            self.artists.remove(at: indexPath.row)
+            self.artists.append(artist)
+            self.listTableView.reloadData()
+            
+        }
+        navigationController?.pushViewController(editScreen, animated: true)
+    }
 }

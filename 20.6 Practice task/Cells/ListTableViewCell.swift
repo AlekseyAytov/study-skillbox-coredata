@@ -10,6 +10,24 @@ import UIKit
 class ListTableViewCell: UITableViewCell {
     
     static let identifier = "List cell"
+    
+    var name: String? {
+        willSet {
+            postHeaderLabel.text = newValue
+        }
+    }
+    
+    var dob: String? {
+        willSet {
+            postTimeLabel.text = newValue
+        }
+    }
+    
+    var country: String? {
+        willSet {
+            postTextLabel.text = newValue
+        }
+    }
 
     // главный горизонтальный стэк ячейки, включает в себя postImage, postStack
     private lazy var mainStack: UIStackView = {
@@ -42,12 +60,13 @@ class ListTableViewCell: UITableViewCell {
         let stack = UIStackView()
         stack.axis = .horizontal
         stack.spacing = 8
+        stack.distribution = .equalSpacing
         return stack
     }()
     
     private lazy var postTextLabel: UILabel = {
         let label = UILabel()
-        label.text = Constants.Text.text
+        label.text = "country"
         label.font = Constants.Fonts.ui14Regular
         label.numberOfLines = 0
         return label
@@ -61,14 +80,14 @@ class ListTableViewCell: UITableViewCell {
     
     private lazy var postHeaderLabel: UILabel = {
         let label = UILabel()
-        label.text = Constants.Text.heading
+        label.text = "name"
         label.font = Constants.Fonts.ui16Semi
         return label
     }()
     
     private lazy var postTimeLabel: UILabel = {
         let label = UILabel()
-        label.text = Constants.Text.time
+        label.text = "dob"
         label.textColor = Constants.Colors.gray03
         label.font = Constants.Fonts.ui14Regular
         return label
@@ -94,11 +113,11 @@ class ListTableViewCell: UITableViewCell {
         mainStack.addArrangedSubview(postImage)
         mainStack.addArrangedSubview(postStack)
 
+        postStack.addArrangedSubview(postHeaderLabel)
         postStack.addArrangedSubview(postHeaderStack)
-        postStack.addArrangedSubview(postTextLabel)
         postStack.addArrangedSubview(postFooterView)
 
-        postHeaderStack.addArrangedSubview(postHeaderLabel)
+        postHeaderStack.addArrangedSubview(postTextLabel)
         postHeaderStack.addArrangedSubview(postTimeLabel)
 
         postFooterView.addSubview(cellSeparatorView)
