@@ -51,43 +51,21 @@ class ModifyViewController: UIViewController {
         }
     }
     
-    private lazy var aboutInfo: UILabel = {
-        let label = UILabel()
-        label.numberOfLines = 0
-        label.textAlignment = .center
-        label.text = Constants.Titles.aboutinfo
-        return label
-    }()
-    
     private lazy var stackView: UIStackView = {
-        let stackView = UIStackView()
+        let stackView = UIStackView(arrangedSubviews: [nameTextFieldStackView, lastnameTextFieldStackView, birthTextFieldStackView, countryTextFieldStackView, occupationTextFieldStackView])
         stackView.axis = .vertical
         stackView.distribution = .fill
-        stackView.spacing = 10
+        stackView.spacing = 30
         return stackView
     }()
     
 // ----- name -----------------------------------
     
-    private lazy var nameLabel: UILabel = {
-        let label = UILabel()
-        label.text = Constants.Titles.name
-        label.setContentHuggingPriority(.defaultHigh, for: .horizontal)
-        return label
-    }()
     
-    private lazy var nameTextField: CustomUITextField = {
-        let textField = CustomUITextField()
+    private lazy var nameTextField: FloatingLabelInput = {
+        let textField = FloatingLabelInput(floatingPlaceholder: "firstname")
         textField.delegate = self
         return textField
-    }()
-    
-    private lazy var nameStackView: UIStackView = {
-        let stackView = UIStackView()
-        stackView.axis = .horizontal
-        stackView.distribution = .fill
-        stackView.spacing = 3
-        return stackView
     }()
     
     private lazy var nameErrorLabel: UILabel = {
@@ -100,7 +78,7 @@ class ModifyViewController: UIViewController {
     }()
     
     private lazy var nameTextFieldStackView: UIStackView = {
-        let stackView = UIStackView()
+        let stackView = UIStackView(arrangedSubviews: [nameTextField, nameErrorLabel])
         stackView.axis = .vertical
         stackView.distribution = .fill
         stackView.spacing = 0
@@ -109,24 +87,11 @@ class ModifyViewController: UIViewController {
     
 // ----- lastname ---------------------------------
     
-    private lazy var lastnameLabel: UILabel = {
-        let label = UILabel()
-        label.text = Constants.Titles.lastname
-        return label
-    }()
     
-    private lazy var lastnameTextField: CustomUITextField = {
-        let textField = CustomUITextField()
+    private lazy var lastnameTextField: FloatingLabelInput = {
+        let textField = FloatingLabelInput(floatingPlaceholder: "lastname")
         textField.delegate = self
         return textField
-    }()
-    
-    private lazy var lastnameStackView: UIStackView = {
-        let stackView = UIStackView()
-        stackView.axis = .horizontal
-        stackView.distribution = .fill
-        stackView.spacing = 5
-        return stackView
     }()
     
     private lazy var lastnameErrorLabel: UILabel = {
@@ -139,7 +104,7 @@ class ModifyViewController: UIViewController {
     }()
     
     private lazy var lastnameTextFieldStackView: UIStackView = {
-        let stackView = UIStackView()
+        let stackView = UIStackView(arrangedSubviews: [lastnameTextField, lastnameErrorLabel])
         stackView.axis = .vertical
         stackView.distribution = .fill
         stackView.spacing = 0
@@ -148,24 +113,10 @@ class ModifyViewController: UIViewController {
     
 // ----- occupation -----------------------------
     
-    private lazy var occupationLabel: UILabel = {
-        let label = UILabel()
-        label.text = Constants.Titles.occupation
-        return label
-    }()
-    
-    private lazy var occupationTextField: CustomUITextField = {
-        let textField = CustomUITextField()
+    private lazy var occupationTextField: FloatingLabelInput = {
+        let textField = FloatingLabelInput(floatingPlaceholder: "city")
         textField.delegate = self
         return textField
-    }()
-    
-    private lazy var occupationStackView: UIStackView = {
-        let stackView = UIStackView()
-        stackView.axis = .horizontal
-        stackView.distribution = .fill
-        stackView.spacing = 5
-        return stackView
     }()
     
     private lazy var occupationErrorLabel: UILabel = {
@@ -178,7 +129,7 @@ class ModifyViewController: UIViewController {
     }()
     
     private lazy var occupationTextFieldStackView: UIStackView = {
-        let stackView = UIStackView()
+        let stackView = UIStackView(arrangedSubviews: [occupationTextField, occupationErrorLabel])
         stackView.axis = .vertical
         stackView.distribution = .fill
         stackView.spacing = 0
@@ -187,26 +138,12 @@ class ModifyViewController: UIViewController {
     
 // ----- birth ----------------------------------
     
-    private lazy var birthLabel: UILabel = {
-        let label = UILabel()
-        label.text = Constants.Titles.birth
-        return label
-    }()
-    
-    private lazy var birthTextField: CustomUITextField = {
-        let textField = CustomUITextField()
+    private lazy var birthTextField: FloatingLabelInput = {
+        let textField = FloatingLabelInput(floatingPlaceholder: "birth")
         textField.delegate = self
         textField.keyboardType = .numberPad
         textField.textContentType = .dateTime
         return textField
-    }()
-    
-    private lazy var birthStackView: UIStackView = {
-        let stackView = UIStackView()
-        stackView.axis = .horizontal
-        stackView.distribution = .fill
-        stackView.spacing = 5
-        return stackView
     }()
     
     private lazy var birthErrorLabel: UILabel = {
@@ -219,7 +156,7 @@ class ModifyViewController: UIViewController {
     }()
     
     private lazy var birthTextFieldStackView: UIStackView = {
-        let stackView = UIStackView()
+        let stackView = UIStackView(arrangedSubviews: [birthTextField, birthErrorLabel])
         stackView.axis = .vertical
         stackView.distribution = .fill
         stackView.spacing = 0
@@ -228,24 +165,10 @@ class ModifyViewController: UIViewController {
     
 // ----- country --------------------------------
     
-    private lazy var countryLabel: UILabel = {
-        let label = UILabel()
-        label.text = Constants.Titles.country
-        return label
-    }()
-    
-    private lazy var countryTextField: CustomUITextField = {
-        let textField = CustomUITextField()
+    private lazy var countryTextField: FloatingLabelInput = {
+        let textField = FloatingLabelInput(floatingPlaceholder: "country")
         textField.delegate = self
         return textField
-    }()
-    
-    private lazy var countryStackView: UIStackView = {
-        let stackView = UIStackView()
-        stackView.axis = .horizontal
-        stackView.distribution = .fill
-        stackView.spacing = 5
-        return stackView
     }()
     
     private lazy var countryErrorLabel: UILabel = {
@@ -258,7 +181,7 @@ class ModifyViewController: UIViewController {
     }()
     
     private lazy var countryTextFieldStackView: UIStackView = {
-        let stackView = UIStackView()
+        let stackView = UIStackView(arrangedSubviews: [countryTextField, countryErrorLabel])
         stackView.axis = .vertical
         stackView.distribution = .fill
         stackView.spacing = 0
@@ -286,66 +209,14 @@ class ModifyViewController: UIViewController {
     
     private func setupViews() {
         view.addSubview(stackView)
-        
-        stackView.addArrangedSubview(aboutInfo)
-        
-        stackView.addArrangedSubview(nameStackView)
-        nameStackView.addArrangedSubview(nameLabel)
-        nameStackView.addArrangedSubview(nameTextFieldStackView)
-        nameTextFieldStackView.addArrangedSubview(nameTextField)
-        nameTextFieldStackView.addArrangedSubview(nameErrorLabel)
-
-        stackView.addArrangedSubview(lastnameStackView)
-        lastnameStackView.addArrangedSubview(lastnameLabel)
-        lastnameStackView.addArrangedSubview(lastnameTextFieldStackView)
-        lastnameTextFieldStackView.addArrangedSubview(lastnameTextField)
-        lastnameTextFieldStackView.addArrangedSubview(lastnameErrorLabel)
-
-        stackView.addArrangedSubview(occupationStackView)
-        occupationStackView.addArrangedSubview(occupationLabel)
-        occupationStackView.addArrangedSubview(occupationTextFieldStackView)
-        occupationTextFieldStackView.addArrangedSubview(occupationTextField)
-        occupationTextFieldStackView.addArrangedSubview(occupationErrorLabel)
-
-        stackView.addArrangedSubview(birthStackView)
-        birthStackView.addArrangedSubview(birthLabel)
-        birthStackView.addArrangedSubview(birthTextFieldStackView)
-        birthTextFieldStackView.addArrangedSubview(birthTextField)
-        birthTextFieldStackView.addArrangedSubview(birthErrorLabel)
-        
-        stackView.addArrangedSubview(countryStackView)
-        countryStackView.addArrangedSubview(countryLabel)
-        countryStackView.addArrangedSubview(countryTextFieldStackView)
-        countryTextFieldStackView.addArrangedSubview(countryTextField)
-        countryTextFieldStackView.addArrangedSubview(countryErrorLabel)
+        view.backgroundColor = .systemBackground
     }
     
     private func setupConstraints() {
         stackView.snp.makeConstraints { make in
-            make.top.equalTo(view.safeAreaLayoutGuide.snp.topMargin)
+            make.top.equalTo(view.safeAreaLayoutGuide.snp.topMargin).inset(50)
             make.leading.trailing.equalToSuperview().inset(20)
         }
-        
-        nameLabel.snp.makeConstraints { make in
-            make.width.equalTo(120)
-        }
-        
-        lastnameLabel.snp.makeConstraints { make in
-            make.width.equalTo(120)
-        }
-        
-        occupationLabel.snp.makeConstraints { make in
-            make.width.equalTo(120)
-        }
-        
-        birthLabel.snp.makeConstraints { make in
-            make.width.equalTo(120)
-        }
-        
-        countryLabel.snp.makeConstraints { make in
-            make.width.equalTo(120)
-        }
-        
     }
     
     @objc func doneTapped() {

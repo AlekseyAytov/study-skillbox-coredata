@@ -13,13 +13,33 @@ class ListViewController: UIViewController {
     
     var artists: [ArtistProtocol] = [] {
         didSet {
-            artists.sort { $0.lastName < $1.lastName }
+            switch sortingField{
+            case .lastName:
+                
+                switch sortingMethod {
+                case .alphabetical:
+                    artists.sort { $0.lastName < $1.lastName }
+                case .reverseAlphabetical:
+                    artists.sort { $0.lastName > $1.lastName }
+                }
+            case .firstname:
+                
+                switch sortingMethod {
+                case .alphabetical:
+                    artists.sort { $0.firstName < $1.firstName }
+                case .reverseAlphabetical:
+                    artists.sort { $0.firstName > $1.firstName }
+                }
+            }
         }
     }
     
+    var sortingField: SortingField = .lastName
+    
+    var sortingMethod: SortingMethod = .alphabetical
+    
     lazy var listTableView: UITableView = {
         let table = UITableView()
-        table.backgroundColor = .green
         table.dataSource = self
         table.delegate = self
         table.separatorStyle = .none
@@ -54,7 +74,6 @@ class ListViewController: UIViewController {
     }
     
     private func setupViews() {
-        view.backgroundColor  = .white
         view.addSubview(listTableView)
     }
     
@@ -76,7 +95,16 @@ class ListViewController: UIViewController {
     }
     
     @objc func sortTapped() {
-        navigationController?.pushViewController(SortingViewController(), animated: true)
+        let sortScreen = SortSettingTableViewController()
+        sortScreen.sortingMethod = self.sortingMethod
+        sortScreen.sortingField = self.sortingField
+        sortScreen.doAfterEdit = { [unowned self] method, field in
+            self.sortingMethod = method
+            self.sortingField = field
+            self.artists = self.artists
+            self.listTableView.reloadData()
+        }
+        navigationController?.pushViewController(sortScreen, animated: true)
     }
 
 }
@@ -89,7 +117,13 @@ extension ListViewController: UITableViewDataSource {
     
     func tableView(_ tableView: UITableView, cellForRowAt indexPath: IndexPath) -> UITableViewCell {
         let reuseCell = tableView.dequeueReusableCell(withIdentifier: ListTableViewCell.identifier, for: indexPath) as! ListTableViewCell
-        reuseCell.name    = artists[indexPath.row].firstName + " " + artists[indexPath.row].lastName
+        
+        switch sortingField {
+        case .lastName:
+            reuseCell.name = artists[indexPath.row].lastName + " " + artists[indexPath.row].firstName
+        case .firstname:
+            reuseCell.name = artists[indexPath.row].firstName + " " + artists[indexPath.row].lastName
+        }
         reuseCell.dob     = artists[indexPath.row].dob
         reuseCell.country = artists[indexPath.row].country
         return reuseCell

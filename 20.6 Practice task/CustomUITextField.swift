@@ -9,7 +9,7 @@ import UIKit
 
 class CustomUITextField: UITextField {
     
-    var errorFlag: Bool 
+    var errorFlag: Bool = true
 //        willSet {
 //            if newValue {
 //                errorBorderStile()
@@ -20,7 +20,6 @@ class CustomUITextField: UITextField {
 //    }
     
     init() {
-        errorFlag = true
         super.init(frame: .zero)
         
         borderStyle = .roundedRect

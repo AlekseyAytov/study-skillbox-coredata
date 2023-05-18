@@ -55,6 +55,10 @@ struct Artist: ArtistProtocol {
     var city: String
 }
 
-enum ArtistKey: String {
-    case gender, firstName, lastName, dob, country, city
+enum SortingField: CaseIterable {
+    case firstname, lastName
+}
+
+enum SortingMethod: CaseIterable {
+    case alphabetical, reverseAlphabetical
 }

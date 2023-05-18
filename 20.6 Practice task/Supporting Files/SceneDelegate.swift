@@ -24,6 +24,7 @@ class SceneDelegate: UIResponder, UIWindowSceneDelegate {
         
         let naavi = UINavigationController(rootViewController: ListViewController())
         naavi.navigationBar.prefersLargeTitles = true
+        naavi.view.backgroundColor = .systemBackground
         
         window.rootViewController = naavi
         
