@@ -11,12 +11,14 @@ class ListViewController: UIViewController {
     
     var artistsStorage: ArtistInfoStorageProtocol = ArtistInfoStorage()
     
+    var settingsStorage = SettingsStorage()
+    
     var artists: [ArtistProtocol] = [] {
         didSet {
-            switch sortingField{
+            switch settings.sortingField{
             case .lastName:
                 
-                switch sortingMethod {
+                switch settings.sortingMethod {
                 case .alphabetical:
                     artists.sort { $0.lastName < $1.lastName }
                 case .reverseAlphabetical:
@@ -24,7 +26,7 @@ class ListViewController: UIViewController {
                 }
             case .firstname:
                 
-                switch sortingMethod {
+                switch settings.sortingMethod {
                 case .alphabetical:
                     artists.sort { $0.firstName < $1.firstName }
                 case .reverseAlphabetical:
@@ -34,9 +36,11 @@ class ListViewController: UIViewController {
         }
     }
     
-    var sortingField: SortingField = .lastName
-    
-    var sortingMethod: SortingMethod = .alphabetical
+    var settings: Settings! {
+        willSet {
+            settingsStorage.saveSettings(settings: newValue)
+        }
+    }
     
     lazy var listTableView: UITableView = {
         let table = UITableView()
@@ -53,12 +57,17 @@ class ListViewController: UIViewController {
         setupViews()
         setupConstraints()
         setupNavigationItem()
+        setSettings()
         setArtists()
     }
     
     // метод используется для наполнения свойства artists после создания экземпляра класса
     func setArtists() {
         artists = artistsStorage.loadArtists()
+    }
+    
+    func setSettings() {
+        settings = settingsStorage.loadSettings() ?? Settings(sortingField: .lastName, sortingMethod: .alphabetical)
     }
     
     private func setupNavigationItem() {
@@ -96,11 +105,9 @@ class ListViewController: UIViewController {
     
     @objc func sortTapped() {
         let sortScreen = SortSettingTableViewController()
-        sortScreen.sortingMethod = self.sortingMethod
-        sortScreen.sortingField = self.sortingField
-        sortScreen.doAfterEdit = { [unowned self] method, field in
-            self.sortingMethod = method
-            self.sortingField = field
+        sortScreen.sortingSettings = self.settings
+        sortScreen.doAfterEdit = { [unowned self] setttt in
+            self.settings = setttt
             self.artists = self.artists
             self.listTableView.reloadData()
         }
@@ -118,7 +125,7 @@ extension ListViewController: UITableViewDataSource {
     func tableView(_ tableView: UITableView, cellForRowAt indexPath: IndexPath) -> UITableViewCell {
         let reuseCell = tableView.dequeueReusableCell(withIdentifier: ListTableViewCell.identifier, for: indexPath) as! ListTableViewCell
         
-        switch sortingField {
+        switch settings.sortingField {
         case .lastName:
             reuseCell.name = artists[indexPath.row].lastName + " " + artists[indexPath.row].firstName
         case .firstname:

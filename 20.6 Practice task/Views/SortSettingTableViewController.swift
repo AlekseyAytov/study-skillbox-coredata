@@ -9,11 +9,9 @@ import UIKit
 
 class SortSettingTableViewController: UITableViewController {
     
-    var sortingMethod: SortingMethod?
+    var sortingSettings: Settings?
     
-    var sortingField: SortingField?
-    
-    var doAfterEdit: ((SortingMethod, SortingField) -> Void)?
+    var doAfterEdit: ((Settings) -> Void)?
 
     override func viewDidLoad() {
         super.viewDidLoad()
@@ -35,7 +33,7 @@ class SortSettingTableViewController: UITableViewController {
     }
     
     @objc func saveTapped() {
-        doAfterEdit?(sortingMethod!, sortingField!)
+        doAfterEdit?(sortingSettings!)
         navigationController?.popViewController(animated: true)
     }
     
@@ -99,7 +97,7 @@ class SortSettingTableViewController: UITableViewController {
                 configuration.secondaryText = "reverseAlphabetical"
             }
             
-            if sortMethodElement == sortingMethod {
+            if sortMethodElement == sortingSettings!.sortingMethod {
                 cell.accessoryType = .checkmark
             } else {
                 cell.accessoryType = .none
@@ -117,7 +115,7 @@ class SortSettingTableViewController: UITableViewController {
                 configuration.secondaryText = "firstName"
             }
             
-            if sortFieldElement == sortingField {
+            if sortFieldElement == sortingSettings!.sortingField {
                 cell.accessoryType = .checkmark
             } else {
                 cell.accessoryType = .none
@@ -136,11 +134,11 @@ class SortSettingTableViewController: UITableViewController {
     override func tableView(_ tableView: UITableView, didSelectRowAt indexPath: IndexPath) {
         switch indexPath.section {
         case 0:
-            sortingMethod = SortingMethod.allCases[indexPath.row]
+            sortingSettings!.sortingMethod = SortingMethod.allCases[indexPath.row]
             tableView.deselectRow(at: indexPath, animated: true)
             tableView.reloadSections(IndexSet(integer: indexPath.section), with: .none)
         case 1:
-            sortingField = SortingField.allCases[indexPath.row]
+            sortingSettings!.sortingField = SortingField.allCases[indexPath.row]
             tableView.deselectRow(at: indexPath, animated: true)
             tableView.reloadSections(IndexSet(integer: indexPath.section), with: .none)
         default:

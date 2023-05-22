@@ -30,6 +30,8 @@ class ModifyViewController: UIViewController {
         
         occupationTextField.text = artist.city
         occupationTextField.errorFlag = false
+        
+        genderPicker.selectedSegmentIndex = Gender.allCases.firstIndex(of: artist.gender)!
     }
     
     private let counrtyRegex = Regex {
@@ -51,11 +53,13 @@ class ModifyViewController: UIViewController {
         }
     }
     
+    private let dateFormat = "dd.MM.yyyy"
+    
     private lazy var stackView: UIStackView = {
-        let stackView = UIStackView(arrangedSubviews: [nameTextFieldStackView, lastnameTextFieldStackView, birthTextFieldStackView, countryTextFieldStackView, occupationTextFieldStackView])
+        let stackView = UIStackView(arrangedSubviews: [nameTextFieldStackView, lastnameTextFieldStackView, birthTextFieldStackView, genderPicker, countryTextFieldStackView, occupationTextFieldStackView])
         stackView.axis = .vertical
         stackView.distribution = .fill
-        stackView.spacing = 30
+        stackView.spacing = 25
         return stackView
     }()
     
@@ -188,6 +192,14 @@ class ModifyViewController: UIViewController {
         return stackView
     }()
     
+    private lazy var genderPicker: UISegmentedControl = {
+        let segmentedControl = UISegmentedControl(items: Gender.allCases.map{$0.rawValue} )
+        segmentedControl.addTarget(self, action: #selector(genderPickerValueChanged), for: .valueChanged)
+        segmentedControl.layer.borderColor = UIColor.lightGray.cgColor
+        segmentedControl.layer.borderWidth  = 1
+        return segmentedControl
+    }()
+    
 // ----------------------------------------------
     
     override func viewDidLoad() {
@@ -203,7 +215,6 @@ class ModifyViewController: UIViewController {
         navigationItem.title = "Заголовок сцены"
         
         let doneButton = UIBarButtonItem(barButtonSystemItem: .done, target: self, action: #selector(doneTapped))
-
         navigationItem.rightBarButtonItem = doneButton
     }
     
@@ -239,6 +250,11 @@ class ModifyViewController: UIViewController {
         birthTextField.resignFirstResponder()
         countryTextField.resignFirstResponder()
     }
+    
+    @objc func genderPickerValueChanged(sender: UISegmentedControl) {
+        print("genderPickerValueChanged - \(sender.selectedSegmentIndex)")
+        artist.gender = Gender.allCases[sender.selectedSegmentIndex]
+    }
 }
 
 // MARK: - UITextFieldDelegate
@@ -262,8 +278,8 @@ extension ModifyViewController: UITextFieldDelegate {
         // запрет ввода первого символа пробела
         if range.location == 0, string == " " { return false }
         
-        // если редактируются поля-Не-наследники CustomUITextField, то разрешаем изменения
-        guard let textField = textField as? CustomUITextField else { return true }
+        // если редактируются поля-Не-наследники FloatingLabelInput, то разрешаем изменения
+        guard let textField = textField as? FloatingLabelInput else { return true }
 
         // switch для определения конкретного поля, в котором происходит изменение
         switch textField {
@@ -302,14 +318,42 @@ extension ModifyViewController: UITextFieldDelegate {
                 birthErrorLabel.isHidden = true
             }
             
-            // если вводимая строка пустая, то разрешаем изменение
-            if string.isEmpty { return true }
-            // если вводимая строка не приводиться к типу Int, то запрещаем изменения
-            guard let _ = Int(string) else { return false }
-            // если в поле более 4 символов, то запрещаем изменение
-            if range.location >= 4 { return false }
+            var text = textField.text!
+            
+            // запрет изменения строки, если курсор находиться не в конце
+            // запрет на вставку
+            if (range.location + 1) < text.count || string.count > 1 {
+                return false
+            }
+            
+            switch range.location {
+            case 1, 4:
+                if string != "" {
+                    textField.text! = text + string + "."
+                    return false
+                }
+            case 2, 5 :
+                if string != "" {
+                    textField.text! = text + "."
+                } else {
+                    text.remove(at: text.index(text.startIndex, offsetBy: range.location-1))
+                    textField.text! = text
+                }
+            case 3, 6:
+                if string.isEmpty {
+                    text.remove(at: text.index(text.startIndex, offsetBy: range.location-1))
+                    textField.text! = text
+                }
+            case 10... :
+                if string != "" {
+                    return false
+                }
+            default:
+                break
+            }
             
             return true
+            
         case countryTextField:
             if countryTextField.errorFlag {
                 countryErrorLabel.isHidden = true
@@ -419,11 +463,25 @@ extension ModifyViewController: UITextFieldDelegate {
     
     func birthValueValidate(value: String?) -> String? {
         if let value = value, !value.trimmingCharacters(in: .whitespaces).isEmpty {
-            if let _ = value.wholeMatch(of: birthRegex) {
-                return nil
+            
+            // проверка на совпадение регулярному выражению
+//            if let _ = value.wholeMatch(of: birthRegex) {
+//                return nil
+//            } else {
+//                return "Введите год"
+//            }
+            
+            let formatter = DateFormatter()
+            formatter.dateFormat = dateFormat
+            
+            if let date = formatter.date(from: value) {
+                if date > Date() {
+                    return "Неверная дата"
+                }
             } else {
-                return "Введите год"
+                return "Неверный формат"
             }
+            return nil
         } else {
             return "Заполните поле"
         }
