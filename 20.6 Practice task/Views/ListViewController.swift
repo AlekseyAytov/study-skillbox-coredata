@@ -6,31 +6,33 @@
 //
 
 import SnapKit
+import CoreData
 
 class ListViewController: UIViewController {
     
-    var artistsStorage: ArtistInfoStorageProtocol = ArtistInfoStorage()
+    var artistsStorage = ArtistInfoStorage.shared
     
     var settingsStorage = SettingsStorage()
     
-    var artists: [ArtistProtocol] = [] {
+    var artists: [Artist]! {
+        // сортировка в зависимости от настроек
         didSet {
             switch settings.sortingField{
             case .lastName:
                 
                 switch settings.sortingMethod {
                 case .alphabetical:
-                    artists.sort { $0.lastName < $1.lastName }
+                    artists.sort { $0.lastName ?? "" < $1.lastName ?? "" }
                 case .reverseAlphabetical:
-                    artists.sort { $0.lastName > $1.lastName }
+                    artists.sort { $0.lastName ?? "" > $1.lastName ?? "" }
                 }
             case .firstname:
                 
                 switch settings.sortingMethod {
                 case .alphabetical:
-                    artists.sort { $0.firstName < $1.firstName }
+                    artists.sort { $0.firstName ?? "" < $1.firstName ?? "" }
                 case .reverseAlphabetical:
-                    artists.sort { $0.firstName > $1.firstName }
+                    artists.sort { $0.firstName ?? "" > $1.firstName ?? "" }
                 }
             }
         }
@@ -41,6 +43,13 @@ class ListViewController: UIViewController {
             settingsStorage.saveSettings(settings: newValue)
         }
     }
+    
+    // для отображения даты в ячейке
+    lazy var dateFormatter: DateFormatter = {
+        let formatter = DateFormatter()
+        formatter.dateFormat = "yyyy"
+        return formatter
+    }()
     
     lazy var listTableView: UITableView = {
         let table = UITableView()
@@ -63,7 +72,7 @@ class ListViewController: UIViewController {
     
     // метод используется для наполнения свойства artists после создания экземпляра класса
     func setArtists() {
-        artists = artistsStorage.loadArtists()
+        artists = artistsStorage.fetchObjects()
     }
     
     func setSettings() {
@@ -96,8 +105,9 @@ class ListViewController: UIViewController {
 
     @objc func addTapped() {
         let addScreen = ModifyViewController()
-        addScreen.doAfterEdit = { [unowned self] artist in
-            self.artists.append(artist)
+        addScreen.doAfterEdit = { [unowned self] artist, birth in
+            let newArtist = self.artistsStorage.insertNewObject(newArtist: artist, birth: birth)
+            self.artists.append(newArtist)
             self.listTableView.reloadData()
         }
         navigationController?.pushViewController(addScreen, animated: true)
@@ -113,9 +123,9 @@ class ListViewController: UIViewController {
         }
         navigationController?.pushViewController(sortScreen, animated: true)
     }
-
 }
 
+// MARK: - DataSource
 
 extension ListViewController: UITableViewDataSource {
     func tableView(_ tableView: UITableView, numberOfRowsInSection section: Int) -> Int {
@@ -127,11 +137,11 @@ extension ListViewController: UITableViewDataSource {
         
         switch settings.sortingField {
         case .lastName:
-            reuseCell.name = artists[indexPath.row].lastName + " " + artists[indexPath.row].firstName
+            reuseCell.name = artists[indexPath.row].lastName! + " " + artists[indexPath.row].firstName!
         case .firstname:
-            reuseCell.name = artists[indexPath.row].firstName + " " + artists[indexPath.row].lastName
+            reuseCell.name = artists[indexPath.row].firstName! + " " + artists[indexPath.row].lastName!
         }
-        reuseCell.dob     = artists[indexPath.row].dob
+        reuseCell.dob     = dateFormatter.string(from: artists[indexPath.row].dob!)
         reuseCell.country = artists[indexPath.row].country
         return reuseCell
     }
@@ -139,19 +149,47 @@ extension ListViewController: UITableViewDataSource {
     
 }
 
+// MARK: - Delegate
+
 extension ListViewController: UITableViewDelegate {
+    
+    // редактирование при селекте
     func tableView(_ tableView: UITableView, didSelectRowAt indexPath: IndexPath) {
-        
+
         let currentArtist = artists[indexPath.row]
         let editScreen = ModifyViewController()
-        editScreen.artist = currentArtist
+        
+        editScreen.artistFields[.firstName] = currentArtist.firstName
+        editScreen.artistFields[.lastName]  = currentArtist.lastName
+        editScreen.artistFields[.gender]    = currentArtist.gender
+        editScreen.artistFields[.country]   = currentArtist.country
+        editScreen.artistFields[.city]      = currentArtist.city
+        editScreen.artistDob                = currentArtist.dob
         editScreen.setfields()
-        editScreen.doAfterEdit = { [unowned self] artist in
-            self.artists.remove(at: indexPath.row)
-            self.artists.append(artist)
+        
+        editScreen.doAfterEdit = { [unowned self] artist, birth in
+            currentArtist.firstName = artist[.firstName]
+            currentArtist.lastName  = artist[.lastName]
+            currentArtist.gender    = artist[.gender]
+            currentArtist.country   = artist[.country]
+            currentArtist.city      = artist[.city]
+            currentArtist.dob       = birth
+            artistsStorage.saveContext()
             self.listTableView.reloadData()
-            
         }
+        
         navigationController?.pushViewController(editScreen, animated: true)
+    }
+    
+    // удаление при свайпе влево
+    func tableView(_ tableView: UITableView, trailingSwipeActionsConfigurationForRowAt indexPath: IndexPath) -> UISwipeActionsConfiguration? {
+        let deleteArtist = UIContextualAction(style: .destructive, title: "Delete") { _, _, _ in
+            let currentArtist = self.artists[indexPath.row]
+            self.artistsStorage.deleteOblect(artist: currentArtist)
+            self.artists.remove(at: indexPath.row)
+            self.listTableView.reloadData()
+        }
+        
+        return UISwipeActionsConfiguration(actions: [deleteArtist])
     }
 }

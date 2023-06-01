@@ -10,28 +10,30 @@ import RegexBuilder
 
 class ModifyViewController: UIViewController {
     
-    var artist: ArtistProtocol = Artist(gender: .male, firstName: "", lastName: "", dob: "", country: "", city: "")
+    var artistFields: [ArtistProperties: String] = [:]
+    
+    var artistDob: Date?
 
-    var doAfterEdit: ((ArtistProtocol) -> Void)?
+    var doAfterEdit: (([ArtistProperties: String], Date) -> Void)?
     
     func setfields() {
         
-        nameTextField.text = artist.firstName
+        nameTextField.text = artistFields[.firstName]
         nameTextField.errorFlag = false
         
-        lastnameTextField.text = artist.lastName
+        lastnameTextField.text = artistFields[.lastName]
         lastnameTextField.errorFlag = false
         
-        birthTextField.text = artist.dob
+        birthTextField.text = dateFormatter.string(from: artistDob!)
         birthTextField.errorFlag = false
         
-        countryTextField.text = artist.country
+        countryTextField.text = artistFields[.country]
         countryTextField.errorFlag = false
         
-        occupationTextField.text = artist.city
+        occupationTextField.text = artistFields[.city]
         occupationTextField.errorFlag = false
         
-        genderPicker.selectedSegmentIndex = Gender.allCases.firstIndex(of: artist.gender)!
+        genderPicker.selectedSegmentIndex = Gender.allCases.map({ $0.rawValue }).firstIndex(of: artistFields[.gender]) ?? 0
     }
     
     private let counrtyRegex = Regex {
@@ -53,7 +55,11 @@ class ModifyViewController: UIViewController {
         }
     }
     
-    private let dateFormat = "dd.MM.yyyy"
+    private let dateFormatter: DateFormatter = {
+        let formatter = DateFormatter()
+        formatter.dateFormat = "dd.MM.yyyy"
+        return formatter
+    }()
     
     private lazy var stackView: UIStackView = {
         let stackView = UIStackView(arrangedSubviews: [nameTextFieldStackView, lastnameTextFieldStackView, birthTextFieldStackView, genderPicker, countryTextFieldStackView, occupationTextFieldStackView])
@@ -146,7 +152,6 @@ class ModifyViewController: UIViewController {
         let textField = FloatingLabelInput(floatingPlaceholder: "birth")
         textField.delegate = self
         textField.keyboardType = .numberPad
-        textField.textContentType = .dateTime
         return textField
     }()
     
@@ -239,7 +244,7 @@ class ModifyViewController: UIViewController {
             return
         }
         
-        doAfterEdit?(artist)
+        doAfterEdit?(artistFields, artistDob!)
         navigationController?.popViewController(animated: true)
     }
     
@@ -253,7 +258,7 @@ class ModifyViewController: UIViewController {
     
     @objc func genderPickerValueChanged(sender: UISegmentedControl) {
         print("genderPickerValueChanged - \(sender.selectedSegmentIndex)")
-        artist.gender = Gender.allCases[sender.selectedSegmentIndex]
+        artistFields[.gender] = Gender.allCases.map({ $0.rawValue })[sender.selectedSegmentIndex]
     }
 }
 
@@ -270,9 +275,9 @@ extension ModifyViewController: UITextFieldDelegate {
     // в данном методе производится валидация значений при вводе
     func textField(_ textField: UITextField, shouldChangeCharactersIn range: NSRange, replacementString string: String) -> Bool {
         
-        print("------------")
-        print("range.location - \(range.location)")
-        print("string - \(string)")
+//        print("------------")
+//        print("range.location - \(range.location)")
+//        print("string - \(string)")
         
         
         // запрет ввода первого символа пробела
@@ -391,7 +396,7 @@ extension ModifyViewController: UITextFieldDelegate {
                 nameErrorLabel.text = errorMessage
             } else {
                 nameTextField.errorFlag = false
-                artist.firstName = nameTextField.text!
+                artistFields[.firstName] = nameTextField.text!
             }
         case lastnameTextField:
             if let errorMessage = lastnameValueValidate(value: lastnameTextField.text) {
@@ -400,7 +405,7 @@ extension ModifyViewController: UITextFieldDelegate {
                 lastnameErrorLabel.text = errorMessage
             } else {
                 lastnameTextField.errorFlag = false
-                artist.lastName = lastnameTextField.text!
+                artistFields[.lastName] = lastnameTextField.text!
             }
         case occupationTextField:
             if let errorMessage = occupationValueValidate(value: occupationTextField.text) {
@@ -409,7 +414,7 @@ extension ModifyViewController: UITextFieldDelegate {
                 occupationErrorLabel.text = errorMessage
             } else {
                 occupationTextField.errorFlag = false
-                artist.city = occupationTextField.text!
+                artistFields[.city] = occupationTextField.text!
             }
         case birthTextField:
             if let errorMessage = birthValueValidate(value: birthTextField.text) {
@@ -418,7 +423,7 @@ extension ModifyViewController: UITextFieldDelegate {
                 birthErrorLabel.text = errorMessage
             } else {
                 birthTextField.errorFlag = false
-                artist.dob = birthTextField.text!
+                artistDob = dateFormatter.date(from: birthTextField.text!)
             }
         case countryTextField:
             if let errorMessage = countryValueValidate(value: countryTextField.text) {
@@ -427,7 +432,7 @@ extension ModifyViewController: UITextFieldDelegate {
                 countryErrorLabel.text = errorMessage
             } else {
                 countryTextField.errorFlag = false
-                artist.country = countryTextField.text!
+                artistFields[.country] = countryTextField.text!
             }
         default:
             return true
@@ -470,11 +475,8 @@ extension ModifyViewController: UITextFieldDelegate {
 //            } else {
 //                return "Введите год"
 //            }
-            
-            let formatter = DateFormatter()
-            formatter.dateFormat = dateFormat
-            
-            if let date = formatter.date(from: value) {
+                        
+            if let date = dateFormatter.date(from: value) {
                 if date > Date() {
                     return "Неверная дата"
                 }

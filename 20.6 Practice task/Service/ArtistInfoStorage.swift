@@ -6,66 +6,69 @@
 //
 
 import Foundation
+import CoreData
 
-protocol ArtistInfoStorageProtocol {
-    func loadArtists() -> [ArtistProtocol]
-    func saveArtists(_ tasks: [ArtistProtocol]) -> Void
-}
-
-class ArtistInfoStorage: ArtistInfoStorageProtocol {
+class ArtistInfoStorage {
+    static let shared = ArtistInfoStorage()
+    private init() {}
     
-    private var storage = UserDefaults.standard
-    var storageKey = "artists"
+    private lazy var persistentContainer: NSPersistentContainer = {
+        let container = NSPersistentContainer(name: Artist.entityName)
+        container.loadPersistentStores(completionHandler: { (storeDescription, error) in
+            if let error = error as NSError? {
+                fatalError("Unresolved error \(error), \(error.userInfo)")
+            } else {
+                print(storeDescription.url?.absoluteString ?? "")
+            }
+        })
+        return container
+    }()
     
-    func loadArtists() -> [ArtistProtocol] {
-        let loadData = [
-            Artist(gender: .male, firstName: "Lorenzo", lastName: "Lefevre", dob: "1991-02-18", country: "France", city: "Fort-de-France"),
-            Artist(gender: .male, firstName: "Romário", lastName: "Costa", dob: "1971-05-12", country: "Brazil", city: "Mogi das Cruzes"),
-            Artist(gender: .male, firstName: "Atiksh", lastName: "Shah", dob: "1999-05-10", country: "India", city: "Bijapur"),
-            Artist(gender: .female, firstName: "Ilka", lastName: "Barentsen", dob: "1966-01-16", country: "Netherlands", city: "Opsterland"),
-            Artist(gender: .female, firstName: "Selma", lastName: "Rasmussen", dob: "1960-01-04", country: "Denmark", city: "Kvistgaard")
-        ]
-//        var loadData:[ArtistProtocol] = []
-//        let artistsFromStorage = storage.array(forKey: storageKey) as? [[String: String]] ?? []
-//
-//        for artist in artistsFromStorage {
-//            guard let title = artist[TaskKey.title.rawValue],
-//                  let priorityString = artist[TaskKey.priority.rawValue],
-//                  let statusString = artist[TaskKey.status.rawValue] else { continue }
-//
-//            let priority: TaskPriority = priorityString == TaskPriority.normal.rawValue ? .normal : .important
-//            let status: TaskStatus = statusString == TaskStatus.planned.rawValue ? .planned : .completed
-//
-//            loadData.append(Task(title: title, priority: priority, status: status))
-//        }
-        return loadData
+    private lazy var context: NSManagedObjectContext = {
+        return persistentContainer.viewContext
+//        for privateContext
+//        return persistentContainer.newBackgroundContext()
+        
+//        let newContext = NSManagedObjectContext(concurrencyType:.mainQueueConcurrencyType)
+    }()
+    
+    func fetchObjects() -> [Artist] {
+        let fetchRequest = Artist.fetchRequest()
+        let artistsList = try? context.fetch(fetchRequest)
+        return artistsList ?? []
     }
     
-    func saveArtists(_ artists: [ArtistProtocol]) {
+    func insertNewObject(newArtist: [ArtistProperties: String], birth: Date) -> Artist {
+        // first way
+        let newObject =  NSEntityDescription.insertNewObject(forEntityName: Artist.entityName, into: self.context) as! Artist
+         
+        newObject.firstName = newArtist[.firstName]
+        newObject.lastName  = newArtist[.lastName]
+        newObject.gender    = newArtist[.gender]
+        newObject.dob       = birth
+        newObject.country   = newArtist[.country]
+        newObject.city      = newArtist[.city]
         
-//        var arrayForStorage: [[String: String]] = []
-//        artists.forEach { artist in
-//            var oneElement: [String: String] = [:]
-//            oneElement[TaskKey.title.rawValue] = artist.title
-//
-//            switch artist.priority {
-//            case .normal:
-//                oneElement[TaskKey.priority.rawValue] = TaskPriority.normal.rawValue
-//            case .important:
-//                oneElement[TaskKey.priority.rawValue] = TaskPriority.important.rawValue
-//            }
-//
-//            switch artist.status {
-//            case .completed:
-//                oneElement[TaskKey.status.rawValue] = TaskStatus.completed.rawValue
-//            case .planned:
-//                oneElement[TaskKey.status.rawValue] = TaskStatus.planned.rawValue
-//            }
-//
-//            arrayForStorage.append(oneElement)
-//        }
-//
-//        storage.set(arrayForStorage, forKey: storageKey)
-        print("Данные сохранены")
+        self.saveContext()
+        return newObject
+    }
+    
+    func deleteOblect(artist: Artist) {
+        context.delete(artist)
+        self.saveContext()
+    }
+    
+    func saveContext () {
+        let context = persistentContainer.viewContext
+        if context.hasChanges {
+            do {
+                try context.save()
+            } catch {
+                // Replace this implementation with code to handle the error appropriately.
+                // fatalError() causes the application to generate a crash log and terminate. You should not use this function in a shipping application, although it may be useful during development.
+                let nserror = error as NSError
+                fatalError("Unresolved error \(nserror), \(nserror.userInfo)")
+            }
+        }
     }
 }

@@ -16,13 +16,13 @@ class SettingsStorage {
     func loadSettings() -> Settings? {
         guard let data = storage.data(forKey: storageKey) else { return nil }
         guard let decode = try? JSONDecoder().decode(Settings.self, from: data) else { return nil }
-        print("loadSettings - \(decode)")
+        print("Settings loaded")
         return decode
     }
     
     func saveSettings(settings: Settings) {
         guard let storageData = try? JSONEncoder().encode(settings) else { return }
         storage.set(storageData, forKey: storageKey)
-        print("saveSettings - \(storageData)")
+        print("Settings saved")
     }
 }
