@@ -275,11 +275,6 @@ extension ModifyViewController: UITextFieldDelegate {
     // в данном методе производится валидация значений при вводе
     func textField(_ textField: UITextField, shouldChangeCharactersIn range: NSRange, replacementString string: String) -> Bool {
         
-//        print("------------")
-//        print("range.location - \(range.location)")
-//        print("string - \(string)")
-        
-        
         // запрет ввода первого символа пробела
         if range.location == 0, string == " " { return false }
         

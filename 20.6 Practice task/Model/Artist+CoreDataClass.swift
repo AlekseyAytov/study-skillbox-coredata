@@ -19,6 +19,6 @@ enum Gender: String, CaseIterable, Codable {
     case male, female
 }
 
-enum ArtistProperties: String, CaseIterable {
+enum ArtistProperties: String, CaseIterable, Codable {
     case firstName, lastName, gender, country, city
 }

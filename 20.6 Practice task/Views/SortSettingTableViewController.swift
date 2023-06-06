@@ -11,6 +11,10 @@ class SortSettingTableViewController: UITableViewController {
     
     var sortingSettings: Settings?
     
+    private let sortingBy: [ArtistProperties] = [.firstName, .lastName]
+    
+    private let ascendingOrder: [Bool] = [true, false]
+    
     var doAfterEdit: ((Settings) -> Void)?
 
     override func viewDidLoad() {
@@ -64,16 +68,15 @@ class SortSettingTableViewController: UITableViewController {
     // MARK: - Table view data source
 
     override func numberOfSections(in tableView: UITableView) -> Int {
-        // #warning Incomplete implementation, return the number of sections
         return 2
     }
 
     override func tableView(_ tableView: UITableView, numberOfRowsInSection section: Int) -> Int {
         switch section {
         case 0:
-            return SortingMethod.allCases.count
+            return ascendingOrder.count
         case 1:
-            return SortingField.allCases.count
+            return sortingBy.count
         default:
             return 0
         }
@@ -86,33 +89,35 @@ class SortSettingTableViewController: UITableViewController {
         switch indexPath.section {
         case 0:
             
-            let sortMethodElement = SortingMethod.allCases[indexPath.row]
+            let sortMethodElement = ascendingOrder[indexPath.row]
             
             switch sortMethodElement {
-            case .alphabetical:
+            case true:
                 configuration.text = "alphabetical"
                 configuration.secondaryText = "alphabetical"
-            case .reverseAlphabetical:
+            case false:
                 configuration.text = "reverseAlphabetical"
                 configuration.secondaryText = "reverseAlphabetical"
             }
             
-            if sortMethodElement == sortingSettings!.sortingMethod {
+            if sortMethodElement == sortingSettings!.ascending {
                 cell.accessoryType = .checkmark
             } else {
                 cell.accessoryType = .none
             }
             
         case 1:
-            let sortFieldElement = SortingField.allCases[indexPath.row]
+            let sortFieldElement = sortingBy[indexPath.row]
             
             switch sortFieldElement {
             case .lastName:
                 configuration.text = "lastName"
                 configuration.secondaryText = "lastName"
-            case .firstname:
+            case .firstName:
                 configuration.text = "firstName"
                 configuration.secondaryText = "firstName"
+            default:
+                break
             }
             
             if sortFieldElement == sortingSettings!.sortingField {
@@ -134,16 +139,15 @@ class SortSettingTableViewController: UITableViewController {
     override func tableView(_ tableView: UITableView, didSelectRowAt indexPath: IndexPath) {
         switch indexPath.section {
         case 0:
-            sortingSettings!.sortingMethod = SortingMethod.allCases[indexPath.row]
+            sortingSettings!.ascending = ascendingOrder[indexPath.row]
             tableView.deselectRow(at: indexPath, animated: true)
             tableView.reloadSections(IndexSet(integer: indexPath.section), with: .none)
         case 1:
-            sortingSettings!.sortingField = SortingField.allCases[indexPath.row]
+            sortingSettings!.sortingField = sortingBy[indexPath.row]
             tableView.deselectRow(at: indexPath, animated: true)
             tableView.reloadSections(IndexSet(integer: indexPath.section), with: .none)
         default:
             break
         }
     }
-
 }

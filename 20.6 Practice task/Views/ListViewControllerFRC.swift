@@ -8,36 +8,16 @@
 import SnapKit
 import CoreData
 
-class ListViewController: UIViewController {
+class ListViewControllerFRC: UIViewController {
     
-    var artistsStorage = ArtistInfoStorage.shared
+    let artistsStorage = ArtistInfoStorageFRC.shared
     
-    var settingsStorage = SettingsStorage()
+    var fetchController: NSFetchedResultsController<Artist>!
     
-    var artists: [Artist]! {
-        // сортировка в зависимости от настроек
-        didSet {
-            switch settings.sortingField{
-            case .lastName:
-                
-                switch settings.sortingMethod {
-                case .alphabetical:
-                    artists.sort { $0.lastName ?? "" < $1.lastName ?? "" }
-                case .reverseAlphabetical:
-                    artists.sort { $0.lastName ?? "" > $1.lastName ?? "" }
-                }
-            case .firstname:
-                
-                switch settings.sortingMethod {
-                case .alphabetical:
-                    artists.sort { $0.firstName ?? "" < $1.firstName ?? "" }
-                case .reverseAlphabetical:
-                    artists.sort { $0.firstName ?? "" > $1.firstName ?? "" }
-                }
-            }
-        }
-    }
+    let settingsStorage = SettingsStorage()
     
+    private let defaultSettings = Settings(sortingField: .lastName, ascending: true)
+        
     var settings: Settings! {
         willSet {
             settingsStorage.saveSettings(settings: newValue)
@@ -59,7 +39,6 @@ class ListViewController: UIViewController {
         table.register(ListTableViewCell.self, forCellReuseIdentifier: ListTableViewCell.identifier)
         return table
     }()
-    
 
     override func viewDidLoad() {
         super.viewDidLoad()
@@ -67,16 +46,16 @@ class ListViewController: UIViewController {
         setupConstraints()
         setupNavigationItem()
         setSettings()
-        setArtists()
+        setFetchController()
     }
     
-    // метод используется для наполнения свойства artists после создания экземпляра класса
-    func setArtists() {
-        artists = artistsStorage.fetchObjects()
+    private func setSettings() {
+        settings = settingsStorage.loadSettings() ?? defaultSettings
     }
     
-    func setSettings() {
-        settings = settingsStorage.loadSettings() ?? Settings(sortingField: .lastName, sortingMethod: .alphabetical)
+    private func setFetchController() {
+        fetchController = artistsStorage.getFetchController(sortingKey: settings.sortingField.rawValue, ascending: settings.ascending )
+        fetchController.delegate = self
     }
     
     private func setupNavigationItem() {
@@ -106,8 +85,7 @@ class ListViewController: UIViewController {
     @objc func addTapped() {
         let addScreen = ModifyViewController()
         addScreen.doAfterEdit = { [unowned self] artist, birth in
-            let newArtist = self.artistsStorage.insertNewObject(newArtist: artist, birth: birth)
-            self.artists.append(newArtist)
+            self.artistsStorage.insertNewObject(newArtist: artist, birth: birth)
             self.listTableView.reloadData()
         }
         navigationController?.pushViewController(addScreen, animated: true)
@@ -118,7 +96,7 @@ class ListViewController: UIViewController {
         sortScreen.sortingSettings = self.settings
         sortScreen.doAfterEdit = { [unowned self] setttt in
             self.settings = setttt
-            self.artists = self.artists
+            self.setFetchController()
             self.listTableView.reloadData()
         }
         navigationController?.pushViewController(sortScreen, animated: true)
@@ -127,38 +105,47 @@ class ListViewController: UIViewController {
 
 // MARK: - DataSource
 
-extension ListViewController: UITableViewDataSource {
+extension ListViewControllerFRC: UITableViewDataSource {
     func tableView(_ tableView: UITableView, numberOfRowsInSection section: Int) -> Int {
-        artists.count
+        if let currSection = fetchController.sections?[section] {
+            return currSection.numberOfObjects
+        }
+        return 0
     }
     
     func tableView(_ tableView: UITableView, cellForRowAt indexPath: IndexPath) -> UITableViewCell {
-        let reuseCell = tableView.dequeueReusableCell(withIdentifier: ListTableViewCell.identifier, for: indexPath) as! ListTableViewCell
-        
-        switch settings.sortingField {
-        case .lastName:
-            reuseCell.name = artists[indexPath.row].lastName! + " " + artists[indexPath.row].firstName!
-        case .firstname:
-            reuseCell.name = artists[indexPath.row].firstName! + " " + artists[indexPath.row].lastName!
-        }
-        reuseCell.dob     = dateFormatter.string(from: artists[indexPath.row].dob!)
-        reuseCell.country = artists[indexPath.row].country
+        var reuseCell = tableView.dequeueReusableCell(withIdentifier: ListTableViewCell.identifier, for: indexPath)
+        configure(cell: &reuseCell, for: indexPath)
         return reuseCell
     }
     
-    
+    private func configure(cell: inout UITableViewCell, for indexPath: IndexPath) {
+        let cell = cell as! ListTableViewCell
+        let object = fetchController.object(at: indexPath)
+        
+        switch settings.sortingField {
+        case .lastName:
+            cell.name = (object.lastName ?? "") + " " + (object.firstName ?? "")
+        case .firstName:
+            cell.name = (object.firstName ?? "") + " " + (object.lastName ?? "")
+        default:
+            break
+        }
+        cell.dob     = dateFormatter.string(from: object.dob!)
+        cell.country = object.country
+    }
 }
 
 // MARK: - Delegate
 
-extension ListViewController: UITableViewDelegate {
+extension ListViewControllerFRC: UITableViewDelegate {
     
     // редактирование при селекте
     func tableView(_ tableView: UITableView, didSelectRowAt indexPath: IndexPath) {
 
-        let currentArtist = artists[indexPath.row]
+        let currentArtist = fetchController.object(at: indexPath)
         let editScreen = ModifyViewController()
-        
+
         editScreen.artistFields[.firstName] = currentArtist.firstName
         editScreen.artistFields[.lastName]  = currentArtist.lastName
         editScreen.artistFields[.gender]    = currentArtist.gender
@@ -166,7 +153,7 @@ extension ListViewController: UITableViewDelegate {
         editScreen.artistFields[.city]      = currentArtist.city
         editScreen.artistDob                = currentArtist.dob
         editScreen.setfields()
-        
+
         editScreen.doAfterEdit = { [unowned self] artist, birth in
             currentArtist.firstName = artist[.firstName]
             currentArtist.lastName  = artist[.lastName]
@@ -175,21 +162,58 @@ extension ListViewController: UITableViewDelegate {
             currentArtist.city      = artist[.city]
             currentArtist.dob       = birth
             artistsStorage.saveContext()
-            self.listTableView.reloadData()
+            tableView.reloadData()
         }
-        
+
         navigationController?.pushViewController(editScreen, animated: true)
     }
-    
+
     // удаление при свайпе влево
     func tableView(_ tableView: UITableView, trailingSwipeActionsConfigurationForRowAt indexPath: IndexPath) -> UISwipeActionsConfiguration? {
         let deleteArtist = UIContextualAction(style: .destructive, title: "Delete") { _, _, _ in
-            let currentArtist = self.artists[indexPath.row]
-            self.artistsStorage.deleteOblect(artist: currentArtist)
-            self.artists.remove(at: indexPath.row)
-            self.listTableView.reloadData()
+            let object = self.fetchController.object(at: indexPath)
+            self.artistsStorage.deleteOblect(artist: object)
         }
-        
+
         return UISwipeActionsConfiguration(actions: [deleteArtist])
+    }
+}
+
+
+extension ListViewControllerFRC: NSFetchedResultsControllerDelegate {
+    
+    func controllerWillChangeContent(_ controller: NSFetchedResultsController<NSFetchRequestResult>) {
+        listTableView.beginUpdates()
+    }
+    
+    func controller(_ controller: NSFetchedResultsController<NSFetchRequestResult>, didChange anObject: Any, at indexPath: IndexPath?, for type: NSFetchedResultsChangeType, newIndexPath: IndexPath?) {
+        
+        switch type {
+        case .insert:
+            guard let newIndexPath = newIndexPath else { return }
+            listTableView.insertRows(at: [newIndexPath], with: .fade)
+        case .delete:
+            guard let indexPath = indexPath else { return }
+            listTableView.deleteRows(at: [indexPath], with: .fade)
+        case .update:
+            if let indexPath = indexPath {
+                var reuseCell = listTableView.dequeueReusableCell(withIdentifier: ListTableViewCell.identifier, for: indexPath)
+                
+                configure(cell: &reuseCell, for: indexPath)
+            }
+        case .move:
+            if let indexPath = indexPath {
+                listTableView.deleteRows(at: [indexPath], with: .fade)
+            }
+            if let newIndexPath = newIndexPath {
+                listTableView.insertRows(at: [newIndexPath], with: .fade)
+            }
+        default:
+            break
+        }
+    }
+    
+    func controllerDidChangeContent(_ controller: NSFetchedResultsController<NSFetchRequestResult>) {
+        listTableView.endUpdates()
     }
 }

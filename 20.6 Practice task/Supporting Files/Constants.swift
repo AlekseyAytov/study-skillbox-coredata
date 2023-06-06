@@ -93,11 +93,9 @@ enum Constants {
     enum Titles {
         static var name = "Имя"
         static var lastname = "Фамилия"
-        static var occupation = "Род занятий"
-        static var birth = "Год рождения"
+        static var city = "Город"
+        static var birth = "Дата рождения"
         static var country = "Страна"
-        static var buttonURLSession = "URLSession"
-        static var buttonAlamofire = "Alamofire"
         static var aboutinfo = "Для инициализации запроса заполните все поля"
         static var successLabel = "Запрос выполнен успешно"
         static var errorLabel = "Ошибка выполнения запроса"

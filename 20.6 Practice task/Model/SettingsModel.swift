@@ -7,15 +7,7 @@
 
 import Foundation
 
-enum SortingField: String, CaseIterable, Codable {
-    case firstname, lastName
-}
-
-enum SortingMethod: String, CaseIterable, Codable {
-    case alphabetical, reverseAlphabetical
-}
-
 struct Settings: Codable {
-    var sortingField: SortingField
-    var sortingMethod: SortingMethod
+    var sortingField: ArtistProperties
+    var ascending: Bool
 }

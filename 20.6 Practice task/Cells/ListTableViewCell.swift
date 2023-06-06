@@ -29,9 +29,9 @@ class ListTableViewCell: UITableViewCell {
         }
     }
 
-    // главный горизонтальный стэк ячейки, включает в себя postImage, postStack
+    // главный горизонтальный стэк ячейки
     private lazy var mainStack: UIStackView = {
-        let stack = UIStackView()
+        let stack = UIStackView(arrangedSubviews: [postImage, postStack])
         stack.axis = .horizontal
         stack.spacing = 16
         stack.alignment = .top
@@ -47,17 +47,17 @@ class ListTableViewCell: UITableViewCell {
         return imageView
     }()
     
-    // вертикальный стэк для поста, включает в себя postHeaderStack, postTextLabel, postFooterView
+    // вертикальный стэк для поста
     private lazy var postStack: UIStackView = {
-        let stack = UIStackView()
+        let stack = UIStackView(arrangedSubviews: [postHeaderLabel, postHeaderStack, postFooterView])
         stack.axis = .vertical
         stack.spacing = 8
         return stack
     }()
     
-    // горизонтальный стэк для загловка поста, включает в себя postHeaderLabel, postTimeLabel
+    // горизонтальный стэк для загловка поста
     private lazy var postHeaderStack: UIStackView = {
-        let stack = UIStackView()
+        let stack = UIStackView(arrangedSubviews: [postTextLabel, postTimeLabel])
         stack.axis = .horizontal
         stack.spacing = 8
         stack.distribution = .equalSpacing
@@ -110,18 +110,7 @@ class ListTableViewCell: UITableViewCell {
     }
     
     private func setupviews() {
-        mainStack.addArrangedSubview(postImage)
-        mainStack.addArrangedSubview(postStack)
-
-        postStack.addArrangedSubview(postHeaderLabel)
-        postStack.addArrangedSubview(postHeaderStack)
-        postStack.addArrangedSubview(postFooterView)
-
-        postHeaderStack.addArrangedSubview(postTextLabel)
-        postHeaderStack.addArrangedSubview(postTimeLabel)
-
         postFooterView.addSubview(cellSeparatorView)
-
         contentView.addSubview(mainStack)
     }
     
