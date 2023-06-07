@@ -16,7 +16,8 @@ public class Artist: NSManagedObject {
 
 
 enum Gender: String, CaseIterable, Codable {
-    case male, female
+    case male = "Мужской"
+    case female = "Женский"
 }
 
 enum ArtistProperties: String, CaseIterable, Codable {

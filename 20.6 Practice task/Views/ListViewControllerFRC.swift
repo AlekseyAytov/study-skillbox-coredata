@@ -60,11 +60,11 @@ class ListViewControllerFRC: UIViewController {
     
     private func setupNavigationItem() {
         navigationItem.largeTitleDisplayMode = .always
-        navigationItem.title = "Заголовок сцены"
+        navigationItem.title = "Список исполнителей"
         navigationItem.backButtonTitle = "Назад"
         
         let addButton = UIBarButtonItem(barButtonSystemItem: .add, target: self, action: #selector(addTapped))
-        let sortButton = UIBarButtonItem(title: "Sort", style: .plain, target: self, action: #selector(sortTapped))
+        let sortButton = UIBarButtonItem(title: "Сортировка", style: .plain, target: self, action: #selector(sortTapped))
 
         navigationItem.rightBarButtonItem = addButton
         navigationItem.leftBarButtonItem = sortButton
@@ -86,7 +86,6 @@ class ListViewControllerFRC: UIViewController {
         let addScreen = ModifyViewController()
         addScreen.doAfterEdit = { [unowned self] artist, birth in
             self.artistsStorage.insertNewObject(newArtist: artist, birth: birth)
-            self.listTableView.reloadData()
         }
         navigationController?.pushViewController(addScreen, animated: true)
     }
@@ -154,15 +153,14 @@ extension ListViewControllerFRC: UITableViewDelegate {
         editScreen.artistDob                = currentArtist.dob
         editScreen.setfields()
 
-        editScreen.doAfterEdit = { [unowned self] artist, birth in
+        editScreen.doAfterEdit = { [weak self] artist, birth in
             currentArtist.firstName = artist[.firstName]
             currentArtist.lastName  = artist[.lastName]
             currentArtist.gender    = artist[.gender]
             currentArtist.country   = artist[.country]
             currentArtist.city      = artist[.city]
             currentArtist.dob       = birth
-            artistsStorage.saveContext()
-            tableView.reloadData()
+            self!.artistsStorage.saveContext()
         }
 
         navigationController?.pushViewController(editScreen, animated: true)
@@ -170,7 +168,7 @@ extension ListViewControllerFRC: UITableViewDelegate {
 
     // удаление при свайпе влево
     func tableView(_ tableView: UITableView, trailingSwipeActionsConfigurationForRowAt indexPath: IndexPath) -> UISwipeActionsConfiguration? {
-        let deleteArtist = UIContextualAction(style: .destructive, title: "Delete") { _, _, _ in
+        let deleteArtist = UIContextualAction(style: .destructive, title: "Удалить") { _, _, _ in
             let object = self.fetchController.object(at: indexPath)
             self.artistsStorage.deleteOblect(artist: object)
         }
@@ -179,11 +177,16 @@ extension ListViewControllerFRC: UITableViewDelegate {
     }
 }
 
+// MARK: - NSFetchedResultsControllerDelegate
 
 extension ListViewControllerFRC: NSFetchedResultsControllerDelegate {
     
     func controllerWillChangeContent(_ controller: NSFetchedResultsController<NSFetchRequestResult>) {
         listTableView.beginUpdates()
+    }
+    
+    func controllerDidChangeContent(_ controller: NSFetchedResultsController<NSFetchRequestResult>) {
+        listTableView.endUpdates()
     }
     
     func controller(_ controller: NSFetchedResultsController<NSFetchRequestResult>, didChange anObject: Any, at indexPath: IndexPath?, for type: NSFetchedResultsChangeType, newIndexPath: IndexPath?) {
@@ -197,9 +200,8 @@ extension ListViewControllerFRC: NSFetchedResultsControllerDelegate {
             listTableView.deleteRows(at: [indexPath], with: .fade)
         case .update:
             if let indexPath = indexPath {
-                var reuseCell = listTableView.dequeueReusableCell(withIdentifier: ListTableViewCell.identifier, for: indexPath)
-                
-                configure(cell: &reuseCell, for: indexPath)
+                var cell = self.listTableView.cellForRow(at: indexPath)!
+                configure(cell: &cell, for: indexPath)
             }
         case .move:
             if let indexPath = indexPath {
@@ -211,9 +213,5 @@ extension ListViewControllerFRC: NSFetchedResultsControllerDelegate {
         default:
             break
         }
-    }
-    
-    func controllerDidChangeContent(_ controller: NSFetchedResultsController<NSFetchRequestResult>) {
-        listTableView.endUpdates()
     }
 }

@@ -31,7 +31,7 @@ class SortSettingTableViewController: UITableViewController {
         navigationItem.largeTitleDisplayMode = .never
         navigationItem.title = "Сортировка"
         
-        let saveButton = UIBarButtonItem(barButtonSystemItem: .save, target: self, action: #selector(saveTapped))
+        let saveButton = UIBarButtonItem(title: "Сохранить", style: .plain, target: self, action: #selector(saveTapped))
 
         navigationItem.rightBarButtonItem = saveButton
     }
@@ -56,9 +56,9 @@ class SortSettingTableViewController: UITableViewController {
         
         switch section {
         case 0:
-            sectionLabel.text = "Sort order"
+            sectionLabel.text = "Сортировка"
         case 1:
-            sectionLabel.text = "Display order"
+            sectionLabel.text = "Порядок отображения"
         default:
             break
         }
@@ -93,11 +93,9 @@ class SortSettingTableViewController: UITableViewController {
             
             switch sortMethodElement {
             case true:
-                configuration.text = "alphabetical"
-                configuration.secondaryText = "alphabetical"
+                configuration.text = "А -> Я"
             case false:
-                configuration.text = "reverseAlphabetical"
-                configuration.secondaryText = "reverseAlphabetical"
+                configuration.text = "Я -> А"
             }
             
             if sortMethodElement == sortingSettings!.ascending {
@@ -111,11 +109,9 @@ class SortSettingTableViewController: UITableViewController {
             
             switch sortFieldElement {
             case .lastName:
-                configuration.text = "lastName"
-                configuration.secondaryText = "lastName"
+                configuration.text = "Фамилия"
             case .firstName:
-                configuration.text = "firstName"
-                configuration.secondaryText = "firstName"
+                configuration.text = "Имя"
             default:
                 break
             }

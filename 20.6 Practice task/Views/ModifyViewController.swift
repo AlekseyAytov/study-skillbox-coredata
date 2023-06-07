@@ -73,7 +73,7 @@ class ModifyViewController: UIViewController {
     
     
     private lazy var nameTextField: FloatingLabelInput = {
-        let textField = FloatingLabelInput(floatingPlaceholder: "firstname")
+        let textField = FloatingLabelInput(floatingPlaceholder: "Имя")
         textField.delegate = self
         return textField
     }()
@@ -99,7 +99,7 @@ class ModifyViewController: UIViewController {
     
     
     private lazy var lastnameTextField: FloatingLabelInput = {
-        let textField = FloatingLabelInput(floatingPlaceholder: "lastname")
+        let textField = FloatingLabelInput(floatingPlaceholder: "Фамилия")
         textField.delegate = self
         return textField
     }()
@@ -124,7 +124,7 @@ class ModifyViewController: UIViewController {
 // ----- occupation -----------------------------
     
     private lazy var occupationTextField: FloatingLabelInput = {
-        let textField = FloatingLabelInput(floatingPlaceholder: "city")
+        let textField = FloatingLabelInput(floatingPlaceholder: "Город")
         textField.delegate = self
         return textField
     }()
@@ -149,7 +149,7 @@ class ModifyViewController: UIViewController {
 // ----- birth ----------------------------------
     
     private lazy var birthTextField: FloatingLabelInput = {
-        let textField = FloatingLabelInput(floatingPlaceholder: "birth")
+        let textField = FloatingLabelInput(floatingPlaceholder: "Дата рождения")
         textField.delegate = self
         textField.keyboardType = .numberPad
         return textField
@@ -175,7 +175,7 @@ class ModifyViewController: UIViewController {
 // ----- country --------------------------------
     
     private lazy var countryTextField: FloatingLabelInput = {
-        let textField = FloatingLabelInput(floatingPlaceholder: "country")
+        let textField = FloatingLabelInput(floatingPlaceholder: "Страна")
         textField.delegate = self
         return textField
     }()
@@ -217,9 +217,8 @@ class ModifyViewController: UIViewController {
     
     private func setupNavigationItem() {
         navigationItem.largeTitleDisplayMode = .never
-        navigationItem.title = "Заголовок сцены"
         
-        let doneButton = UIBarButtonItem(barButtonSystemItem: .done, target: self, action: #selector(doneTapped))
+        let doneButton = UIBarButtonItem(title: "Сохрнить", style: .plain, target: self, action: #selector(doneTapped))
         navigationItem.rightBarButtonItem = doneButton
     }
     
@@ -257,7 +256,6 @@ class ModifyViewController: UIViewController {
     }
     
     @objc func genderPickerValueChanged(sender: UISegmentedControl) {
-        print("genderPickerValueChanged - \(sender.selectedSegmentIndex)")
         artistFields[.gender] = Gender.allCases.map({ $0.rawValue })[sender.selectedSegmentIndex]
     }
 }
